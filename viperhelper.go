@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 	"github.com/tomguerney/printer"
 )
@@ -116,6 +117,7 @@ func (h *Viperhelper) Validate() error {
 		h.printInvalidEnvs(invalid)
 	}
 	if len(omitted) > 0 || len(invalid) > 0 {
+		log.Info().Msg("configuration invalid")
 		return errors.New("configuration invalid")
 	}
 	return nil
