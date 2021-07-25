@@ -2,6 +2,8 @@ module github.com/tomguerney/viperhelper
 
 go 1.15
 
+replace github.com/tomguerney/printer => /Users/tguerney/code/printer
+
 require (
 	github.com/fatih/color v1.12.0 // indirect
 	github.com/mattn/go-isatty v0.0.13 // indirect

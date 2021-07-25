@@ -153,11 +153,11 @@ func (h *Viperhelper) printOmittedOptions(omitted []*option) {
 		optionMap = append(optionMap, option.toMap())
 	}
 	printer.Feed()
-	printer.TableStencil("omitted-options", optionMap)
+	printer.UseTableStencil("omitted-options", optionMap)
 	printer.Feed()
 	printer.Out("You can either set them as flags, environment variables, or in the config file:")
 	printer.Feed()
-	printer.TableStencil("option-choices", optionMap)
+	printer.UseTableStencil("option-choices", optionMap)
 	printer.Feed()
 }
 
@@ -169,33 +169,32 @@ func (h *Viperhelper) printInvalidEnvs(invalid []*option) {
 		optionMap = append(optionMap, option.toMap())
 	}
 	printer.Feed()
-	printer.TableStencil("invalid-options", optionMap)
+	printer.UseTableStencil("invalid-options", optionMap)
 	printer.Feed()
 }
 
 func setPrinterStencils() {
-	printer.AddTableStencil(
-		"omitted-options",
-		[]string{"Option", "Description"},
-		[]string{"name", "description"},
-		nil,
-	)
+	printer.AddTableStencil(&printer.TableStencil{
+		ID:          "omitted-options",
+		Headers:     []string{"Option", "Description"},
+		ColumnOrder: []string{"name", "description"},
+	})
 
-	printer.AddTableStencil(
-		"invalid-options",
-		[]string{"Option", "Value", "Error"},
-		[]string{"name", "value", "errMsg"},
-		nil,
-	)
+	printer.AddTableStencil(&printer.TableStencil{
+		ID:          "invalid-options",
+		Headers:     []string{"Option", "Value", "Error"},
+		ColumnOrder: []string{"name", "value", "errMsg"},
+	})
 
-	printer.AddTableStencil(
-		"option-choices",
-		[]string{"Option", "Flag", "Environment", "Config File"},
-		[]string{"name", "flag", "envvar", "configfile"},
-		map[string]string{
+	printer.AddTableStencil(&printer.TableStencil{
+		ID:          "option-choices",
+		Headers:     []string{"Option", "Flag", "Environment", "Config File"},
+		ColumnOrder: []string{"name", "flag", "envvar", "configfile"},
+		Colors: map[string]string{
 			"flag":       printer.Green,
 			"envvar":     printer.Green,
 			"configfile": printer.Green,
 		},
-	)
+	})
+
 }
