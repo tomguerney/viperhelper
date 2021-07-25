@@ -20,6 +20,15 @@ func init() {
 // Rule is a validation rule
 type Rule func(i interface{}) (string, bool)
 
+type AddOptionOptions struct {
+	Name        string
+	Description string
+	Env         string
+	Flag        string
+	Required    bool
+	Rule        Rule
+}
+
 type option struct {
 	required    bool
 	name        string
@@ -88,17 +97,17 @@ func (h *Viperhelper) SetEnvPrefix(prefix string) {
 	}
 }
 
-func AddEnv(name, description, flag string, required bool, rule Rule) {
-	h.AddEnv(name, description, flag, required, rule)
+func AddOption(opts *AddOptionOptions) {
+	h.AddOption(opts)
 }
 
-func (h *Viperhelper) AddEnv(name, description, flag string, required bool, rule Rule) {
+func (h *Viperhelper) AddOption(opts *AddOptionOptions) {
 	h.options = append(h.options, &option{
-		required:    required,
-		name:        name,
-		description: description,
-		flag:        flag,
-		rule:        rule,
+		required:    opts.Required,
+		name:        opts.Name,
+		description: opts.Description,
+		flag:        opts.Flag,
+		rule:        opts.Rule,
 		envPrefix:   h.envPrefix,
 	})
 }
