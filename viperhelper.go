@@ -34,6 +34,7 @@ type option struct {
 	name        string
 	flag        string
 	description string
+	env         string
 	value       interface{}
 	envPrefix   string
 	errMsg      string
@@ -43,6 +44,9 @@ type option struct {
 func (o *option) toMap() map[string]string {
 	configfile := fmt.Sprintf("%v: <%v>", o.name, o.name)
 	envvar := strings.ToUpper(o.name)
+	if o.env != "" {
+		envvar = o.env
+	}
 	if o.envPrefix != "" {
 		envvar = fmt.Sprintf("%v_%v", strings.ToUpper(h.envPrefix), envvar)
 	}
@@ -107,6 +111,7 @@ func (h *Viperhelper) AddOption(opts *AddOptionOptions) {
 		name:        opts.Name,
 		description: opts.Description,
 		flag:        opts.Flag,
+		env:         opts.Env,
 		rule:        opts.Rule,
 		envPrefix:   h.envPrefix,
 	})
