@@ -23,6 +23,7 @@ type Rule func(i interface{}) (string, bool)
 type AddOptionOptions struct {
 	Name        string
 	Description string
+	Example     string
 	Env         string
 	Flag        string
 	Required    bool
@@ -34,6 +35,7 @@ type option struct {
 	name        string
 	flag        string
 	description string
+	example     string
 	env         string
 	value       interface{}
 	envPrefix   string
@@ -55,6 +57,7 @@ func (o *option) toMap() map[string]string {
 		"name":        o.name,
 		"flag":        o.flag,
 		"description": o.description,
+		"example":     o.example,
 		"value":       fmt.Sprint(o.value),
 		"errMsg":      o.errMsg,
 		"configfile":  configfile,
@@ -110,6 +113,7 @@ func (h *Viperhelper) AddOption(opts *AddOptionOptions) {
 		required:    opts.Required,
 		name:        opts.Name,
 		description: opts.Description,
+		example:     opts.Example,
 		flag:        opts.Flag,
 		env:         opts.Env,
 		rule:        opts.Rule,
@@ -190,8 +194,8 @@ func (h *Viperhelper) printInvalidEnvs(invalid []*option) {
 func setPrinterStencils() {
 	printer.AddTableStencil(&printer.TableStencil{
 		ID:          "omitted-options",
-		Headers:     []string{"Option", "Description"},
-		ColumnOrder: []string{"name", "description"},
+		Headers:     []string{"Option", "Description", "Example"},
+		ColumnOrder: []string{"name", "description", "example"},
 	})
 
 	printer.AddTableStencil(&printer.TableStencil{
