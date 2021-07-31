@@ -6,9 +6,11 @@ replace github.com/tomguerney/printer => /Users/tguerney/code/printer
 
 require (
 	github.com/fatih/color v1.12.0 // indirect
+	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/mattn/go-isatty v0.0.13 // indirect
 	github.com/rs/zerolog v1.23.0
-	github.com/spf13/viper v1.8.0
+	github.com/spf13/cobra v1.2.1
+	github.com/spf13/viper v1.8.1
 	github.com/stretchr/testify v1.7.0
 	github.com/tomguerney/printer v0.1.15
 	golang.org/x/sys v0.0.0-20210616094352-59db8d763f22 // indirect

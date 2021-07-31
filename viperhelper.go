@@ -6,7 +6,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/rs/zerolog/log"
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/tomguerney/printer"
 )
@@ -21,6 +23,7 @@ func init() {
 type Rule func(i interface{}) (string, bool)
 
 type AddOptionOptions struct {
+	Scope       *cobra.Command
 	Name        string
 	Description string
 	Example     string
@@ -31,6 +34,7 @@ type AddOptionOptions struct {
 }
 
 type option struct {
+	scope       *cobra.Command
 	required    bool
 	name        string
 	flag        string
@@ -72,11 +76,12 @@ type Viperhelper struct {
 	viper     *viper.Viper
 }
 
-// GetViper
+// GetViper get vipers
 func GetViper() *viper.Viper {
 	return h.GetViper()
 }
 
+// GetViper get vipers
 func (h *Viperhelper) GetViper() *viper.Viper {
 	if h.viper == nil {
 		panic("viper not set")
@@ -110,6 +115,7 @@ func AddOption(opts *AddOptionOptions) {
 
 func (h *Viperhelper) AddOption(opts *AddOptionOptions) {
 	h.options = append(h.options, &option{
+		scope:       opts.Scope,
 		required:    opts.Required,
 		name:        opts.Name,
 		description: opts.Description,
@@ -121,13 +127,34 @@ func (h *Viperhelper) AddOption(opts *AddOptionOptions) {
 	})
 }
 
-func Validate() error {
-	return h.Validate()
+func Validate(cmd *cobra.Command) error {
+	return h.Validate(cmd)
 }
 
-func (h *Viperhelper) Validate() error {
-	omitted := h.getOmittedEnvs()
-	invalid := h.getInvalidEnvs()
+func (h *Viperhelper) Validate(cmd *cobra.Command) error {
+	return h.validate(cmd)
+}
+
+func ValidateTree(cmd *cobra.Command) error {
+	return h.ValidateTree(cmd)
+}
+
+func (h *Viperhelper) ValidateTree(cmd *cobra.Command) error {
+	var result error
+	if parent := cmd.Parent(); parent != nil {
+		if err := h.validate(parent); err != nil {
+			result = multierror.Append(result, err)
+		}
+	}
+	if err := h.validate(cmd); err != nil {
+		result = multierror.Append(result, err)
+	}
+	return result
+}
+
+func (h *Viperhelper) validate(cmd *cobra.Command) error {
+	omitted := h.getOmittedEnvs(cmd)
+	invalid := h.getInvalidEnvs(cmd)
 	if len(omitted) > 0 {
 		h.printOmittedOptions(omitted)
 	}
@@ -141,18 +168,18 @@ func (h *Viperhelper) Validate() error {
 	return nil
 }
 
-func (h *Viperhelper) getOmittedEnvs() (omitted []*option) {
+func (h *Viperhelper) getOmittedEnvs(cmd *cobra.Command) (omitted []*option) {
 	for _, option := range h.options {
-		if option.required && !h.GetViper().IsSet(option.name) {
+		if option.scope.Use == cmd.Use && option.required && !h.GetViper().IsSet(option.name) {
 			omitted = append(omitted, option)
 		}
 	}
 	return
 }
 
-func (h *Viperhelper) getInvalidEnvs() (invalid []*option) {
+func (h *Viperhelper) getInvalidEnvs(cmd *cobra.Command) (invalid []*option) {
 	for _, o := range h.options {
-		if i := h.GetViper().Get(o.name); i != nil && o.rule != nil {
+		if i := h.GetViper().Get(o.name); o.scope.Use == cmd.Use && i != nil && o.rule != nil {
 			if errMsg, ok := o.rule(i); !ok {
 				o.value = i
 				o.errMsg = errMsg
